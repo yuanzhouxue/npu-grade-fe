@@ -1,0 +1,83 @@
+<style lang="less">
+.bd {
+    border: solid;
+}
+</style>
+
+<template>
+<view class="kai-content">
+    <!-- <k-panel class="bd">
+        Kai-UI 开始
+    </k-panel> -->
+    <view class="padding-10 font-12">学号</view>
+    <view style="background-color: #fff;">
+        <input-id :config="idconfig" @onInput.user="onIdInput"></input-id>
+    </view>
+    <view class="padding-10 font-12">密码</view>
+    <view style="background-color: #fff;">
+        <input-password :config="pwdconfig" @onInput.user="onPwdInput"></input-password>
+    </view>
+    <view class="padding-10">
+        <button type="{{btnType}}" plain @tap="onConfirm">确定</button>
+    </view>
+    <ad unit-id="adunit-ef4e486fa72774b2"></ad>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Panel from '../kaiui/panel/index'
+import Input from '../kaiui/input/index'
+// import Button from '../kaiui/button/index'
+
+export default class Index extends wepy.page {
+    config = {
+        navigationBarTitleText: '学分积'
+    }
+    components = {
+        'k-panel': Panel,
+        'input-id': Input,
+        'input-password': Input
+    }
+
+    mixins = []
+
+    data = {
+        idconfig: {
+            adjust: false,
+            placeholder: '请输入学号',
+            inputType: 'number',
+            maxlength: 10
+        },
+        pwdconfig: {
+            adjust: false,
+            placeholder: '请输入密码',
+            inputType: 'password',
+            maxlength: 40
+        },
+        btnType: 'default'
+    }
+
+    computed = {}
+
+    methods = {
+        onIdInput(e) {
+            console.log(e)
+        },
+        onPwdInput(e) {
+            console.log(e)
+        },
+        onConfirm() {
+            console.log('confirm')
+            this.btnType = 'primary'
+            wepy.navigateTo({
+                url: './about'
+            })
+        }
+    }
+
+    events = {}
+
+    onLoad() {}
+}
+</script>

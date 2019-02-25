@@ -1,0 +1,41 @@
+<style lang="less" src="./less/index.less">
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+
+export default class extends wepy.app {
+    config = {
+        pages: [
+            'pages/index',
+            'pages/more',
+            'pages/about'
+        ],
+        window: {
+            backgroundTextStyle: 'light',
+            navigationBarBackgroundColor: '#fff',
+            navigationBarTitleText: 'WeChat',
+            navigationBarTextStyle: 'black'
+        }
+    }
+
+    globalData = {}
+
+    constructor() {
+        super()
+        this.use('promisify')
+        this.use('requestfix')
+    }
+
+    onLaunch() {}
+}
+</script>

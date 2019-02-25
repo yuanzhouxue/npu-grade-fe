@@ -1,0 +1,21 @@
+<style lang="less">
+
+</style>
+
+<template>
+<view class="kai-content">
+    <view>
+        关于
+    </view>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class About extends wepy.page {
+    config = {
+        navigationBarTitleText: '关于'
+    }
+    data = {}
+}
+</script>

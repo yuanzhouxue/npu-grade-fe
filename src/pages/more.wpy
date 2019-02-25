@@ -1,0 +1,20 @@
+<style lang="less">
+
+</style>
+
+<template>
+<view class="kai-content">
+    <view>
+        更多
+    </view>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class More extends wepy.page {
+    config = {
+        navigationBarTitleText: '更多功能'
+    }
+}
+</script>
