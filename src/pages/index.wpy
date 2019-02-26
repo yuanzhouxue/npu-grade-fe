@@ -1,26 +1,43 @@
 <style lang="less">
-.bd {
-    border: solid;
+.article {
+    margin: 20rpx;
+    background-color: #d7d7d7;
+    border-left: solid 10rpx #a4a4a4;
+}
+
+.text-right {
+    text-align: right;
 }
 </style>
 
 <template>
-<view class="kai-content">
-    <!-- <k-panel class="bd">
-        Kai-UI 开始
-    </k-panel> -->
-    <view class="padding-10 font-12">学号</view>
-    <view style="background-color: #fff;">
-        <input-id :config="idconfig" @onInput.user="onIdInput"></input-id>
+<view class="page">
+    <view class="page_bd">
+        <view class="padding-10 font-12">学号</view>
+        <view style="background-color: #fff;">
+            <input-id :config="idconfig" @onBlur.user="onIdBlur"></input-id>
+        </view>
+        <view class="padding-10 font-12">密码</view>
+        <view style="background-color: #fff;">
+            <input-password :config="pwdconfig" @onBlur.user="onPwdBlur"></input-password>
+        </view>
+        <view class="padding-10">
+            <button type="{{btnType}}" plain @tap="onConfirm">确定</button>
+        </view>
+        <view hidden="{{hideOneIsAll}}" class="article">
+            <view class="padding-10 font-14">
+                <text>
+                    {{oneContent}}
+                </text>
+                <view class="text-right padding-10 font-14">
+                    {{oneAuthor}}
+                </view>
+            </view>
+        </view>
     </view>
-    <view class="padding-10 font-12">密码</view>
-    <view style="background-color: #fff;">
-        <input-password :config="pwdconfig" @onInput.user="onPwdInput"></input-password>
+    <view class="page_ft">
+        <ad unit-id="adunit-ef4e486fa72774b2"></ad>
     </view>
-    <view class="padding-10">
-        <button type="{{btnType}}" plain @tap="onConfirm">确定</button>
-    </view>
-    <ad unit-id="adunit-ef4e486fa72774b2"></ad>
 </view>
 </template>
 
@@ -28,7 +45,9 @@
 import wepy from 'wepy'
 import Panel from '../kaiui/panel/index'
 import Input from '../kaiui/input/index'
-// import Button from '../kaiui/button/index'
+
+let userId = ''
+let userPwd = ''
 
 export default class Index extends wepy.page {
     config = {
@@ -44,40 +63,71 @@ export default class Index extends wepy.page {
 
     data = {
         idconfig: {
+            value: wepy.getStorageSync('username') || '',
             adjust: false,
             placeholder: '请输入学号',
             inputType: 'number',
             maxlength: 10
         },
         pwdconfig: {
+            value: wepy.getStorageSync('password') || '',
             adjust: false,
             placeholder: '请输入密码',
             inputType: 'password',
             maxlength: 40
         },
-        btnType: 'default'
+        btnType: 'primary',
+        oneContent: '',
+        oneAuthor: '',
+        hideOneIsAll: false
     }
 
     computed = {}
 
     methods = {
-        onIdInput(e) {
-            console.log(e)
-        },
-        onPwdInput(e) {
-            console.log(e)
-        },
         onConfirm() {
+            console.log(userId, userPwd)
             console.log('confirm')
             this.btnType = 'primary'
             wepy.navigateTo({
                 url: './about'
             })
+        },
+        onIdBlur(e) {
+            console.log('blur')
+            userId = e
+            wepy.setStorage({
+                key: 'username',
+                data: e
+            })
+        },
+        onPwdBlur(e) {
+            userPwd = e
+            wepy.setStorage({
+                key: 'password',
+                data: e
+            })
         }
+    }
+
+    async getOneISAll() {
+        let res = await wepy.request('https://wx.seekecho.cn/one/api/channel/one/0/0')
+        console.log(res.data.data)
+        this.hideOneIsAll = false
+        this.oneContent = res.data.data.content_list[0].forward
+        this.oneAuthor = 'by ' + res.data.data.content_list[0].words_info
+        this.$apply()
     }
 
     events = {}
 
-    onLoad() {}
+    onLoad() {
+        this.getOneISAll()
+        // this.idconfig.value = wepy.getStorageSync('username') || ''
+        // this.pwdconfig.value = wepy.getStorageSync('password') || ''
+        // console.log(wepy.getStorageSync('username'))
+        // this.idconfig.value = '0987654321'
+        // this.$apply()
+    }
 }
 </script>
