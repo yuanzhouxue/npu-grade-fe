@@ -25,6 +25,8 @@
                 </view>
             </button>
         </view>
+    </view>
+    <view class="page_ft">
         <view hidden="{{!oneContent}}" class="article">
             <view class="padding-10 font-14">
                 <text>
@@ -35,8 +37,6 @@
                 </view>
             </view>
         </view>
-    </view>
-    <view class="page_ft">
         <ad unit-id="adunit-ef4e486fa72774b2"></ad>
     </view>
 </view>

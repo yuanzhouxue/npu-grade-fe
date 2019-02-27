@@ -38,7 +38,9 @@ export default class extends wepy.app {
             navigationBarTextStyle: 'black'
         },
         tabBar: {
-            'list': [{
+            color: '#000000',
+            selectedColor: '#1296db',
+            list: [{
                     'pagePath': 'pages/index',
                     'text': '学分积',
                     'iconPath': 'imgs/tabbar/ghost.png',
