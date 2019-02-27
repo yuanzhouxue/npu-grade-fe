@@ -1,0 +1,24 @@
+<style lang="less">
+
+</style>
+
+<template>
+<view class="kai-content">
+    <view>
+        成绩
+    </view>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Grade extends wepy.page {
+    config = {
+        navigationBarTitleText: '成绩'
+    }
+    data = {}
+    onLoad() {
+        console.log(this.$parent.globalData.result)
+    }
+}
+</script>

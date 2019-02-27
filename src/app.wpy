@@ -28,7 +28,8 @@ export default class extends wepy.app {
         pages: [
             'pages/index',
             'pages/more',
-            'pages/about'
+            'pages/about',
+            'pages/grade'
         ],
         window: {
             backgroundTextStyle: 'light',
@@ -59,7 +60,10 @@ export default class extends wepy.app {
         }
     }
 
-    globalData = {}
+    globalData = {
+        username: '',
+        password: ''
+    }
 
     constructor() {
         super()
@@ -67,6 +71,9 @@ export default class extends wepy.app {
         this.use('requestfix')
     }
 
-    onLaunch() {}
+    onLaunch() {
+        this.globalData.username = wepy.getStorageSync('username') || ''
+        this.globalData.password = wepy.getStorageSync('passwd') || ''
+    }
 }
 </script>

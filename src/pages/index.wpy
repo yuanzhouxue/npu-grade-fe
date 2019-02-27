@@ -4,10 +4,6 @@
     background-color: #d7d7d7;
     border-left: solid 10rpx #a4a4a4;
 }
-
-.text-right {
-    text-align: right;
-}
 </style>
 
 <template>
@@ -15,21 +11,26 @@
     <view class="page_bd">
         <view class="padding-10 font-12">学号</view>
         <view style="background-color: #fff;">
-            <input-id :config="idconfig" @onBlur.user="onIdBlur"></input-id>
+            <input-id :config.sync="idconfig" @onBlur.user="onIdBlur"></input-id>
         </view>
         <view class="padding-10 font-12">密码</view>
         <view style="background-color: #fff;">
-            <input-password :config="pwdconfig" @onBlur.user="onPwdBlur"></input-password>
+            <input-password :config.sync="pwdconfig" @onBlur.user="onPwdBlur"></input-password>
         </view>
         <view class="padding-10">
-            <button type="{{btnType}}" plain @tap="onConfirm">确定</button>
+            <button class="btn-loading" type="primary" plain @tap="onConfirm">
+                确定
+                <view hidden="{{hideBtnLoading}}">
+                    <loading type="circle"/>
+                </view>
+            </button>
         </view>
-        <view hidden="{{hideOneIsAll}}" class="article">
+        <view hidden="{{!oneContent}}" class="article">
             <view class="padding-10 font-14">
                 <text>
                     {{oneContent}}
                 </text>
-                <view class="text-right padding-10 font-14">
+                <view class="text-pull-right padding-10 font-14">
                     {{oneAuthor}}
                 </view>
             </view>
@@ -45,9 +46,21 @@
 import wepy from 'wepy'
 import Panel from '../kaiui/panel/index'
 import Input from '../kaiui/input/index'
+import Loading from '../kaiui/loading/index'
 
-let userId = ''
-let userPwd = ''
+import JSEncrypt from '../utils/rsa'
+const encrypt = new JSEncrypt()
+const publicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0cnl7FY0dSG5lgpIq/Yb' +
+    'wqhykm1DYGFb0kD0IcjO4YlmK61EtZM4NWr6tNDNElN6eawLKZDxtzYaFnOUAFwx' +
+    'PY75QRs+DE5coKxulPRDzboIauCdychQtR+H8adS+4i3gOmFRPjqoyqp+qchNeVk' +
+    't4Zv9yal7+6GpEFZ2uXVJVZoBGS5H57s2dojP4z8by6DlQtMZq2O2tGpPTnG7Y3t' +
+    '+hR6HVri/9eiSjfzLhT3XO3Jcnykdz7Bb7LUWMmreQHIuY7res2wHqX8LyTiNTib' +
+    'lzbPiw4MbY/xZ4B1alCKVSZXZFG0om6CkHAkw0Q8CLbYU8VN50I0VXaJJ7bdn4dk' +
+    '2QIDAQAB'
+encrypt.setPublicKey(publicKey)
+
+const queryGradeUrl = 'https://wx.seekecho.cn/query_grade'
+let gotResult = false
 
 export default class Index extends wepy.page {
     config = {
@@ -56,7 +69,8 @@ export default class Index extends wepy.page {
     components = {
         'k-panel': Panel,
         'input-id': Input,
-        'input-password': Input
+        'input-password': Input,
+        'loading': Loading
     }
 
     mixins = []
@@ -67,44 +81,55 @@ export default class Index extends wepy.page {
             adjust: false,
             placeholder: '请输入学号',
             inputType: 'number',
-            maxlength: 10
+            maxlength: 10,
+            clear: true
         },
         pwdconfig: {
-            value: wepy.getStorageSync('password') || '',
+            value: wepy.getStorageSync('passwd') || '',
             adjust: false,
             placeholder: '请输入密码',
             inputType: 'password',
-            maxlength: 40
+            maxlength: 40,
+            clear: true
         },
-        btnType: 'primary',
         oneContent: '',
         oneAuthor: '',
-        hideOneIsAll: false
+        hideBtnLoading: true
     }
 
     computed = {}
 
     methods = {
-        onConfirm() {
-            console.log(userId, userPwd)
+        async onConfirm() {
             console.log('confirm')
-            this.btnType = 'primary'
+            if (!gotResult) {
+                wepy.showLoading({
+                    title: 'Loading...',
+                    mask: true
+                })
+                let taskResult = await this.queryGrade()
+                console.log(taskResult)
+                wepy.hideLoading()
+                if (taskResult !== 0) {
+                    return
+                }
+            }
             wepy.navigateTo({
-                url: './about'
+                url: './grade'
             })
+            console.log('end')
         },
         onIdBlur(e) {
-            console.log('blur')
-            userId = e
+            this.$parent.globalData.username = e
             wepy.setStorage({
                 key: 'username',
                 data: e
             })
         },
         onPwdBlur(e) {
-            userPwd = e
+            this.$parent.globalData.password = e
             wepy.setStorage({
-                key: 'password',
+                key: 'passwd',
                 data: e
             })
         }
@@ -112,8 +137,6 @@ export default class Index extends wepy.page {
 
     async getOneISAll() {
         let res = await wepy.request('https://wx.seekecho.cn/one/api/channel/one/0/0')
-        console.log(res.data.data)
-        this.hideOneIsAll = false
         this.oneContent = res.data.data.content_list[0].forward
         this.oneAuthor = 'by ' + res.data.data.content_list[0].words_info
         this.$apply()
@@ -121,13 +144,88 @@ export default class Index extends wepy.page {
 
     events = {}
 
+    async queryGrade() {
+        const self = this
+        if (self.$parent.globalData.username && self.$parent.globalData.password.length > 5) {
+            self.hideBtnLoading = false
+            return new Promise((resolve, reject) => {
+                wepy.request({
+                    url: queryGradeUrl,
+                    data: {
+                        id: self.$parent.globalData.username,
+                        passwd: encrypt.encrypt(self.$parent.globalData.password)
+                    },
+                    method: 'POST',
+                    dataType: 'json'
+                }).then(function(res) {
+                    if (res.data.code === '0') {
+                        console.log(res)
+                        self.hideBtnLoading = true
+                        gotResult = true
+                        self.$parent.globalData.result = res.data.msg
+                        // TODO: 决定是否存储查询结果(onLoad里面有判断)
+                        wepy.setStorage({
+                            key: 'result',
+                            data: res.data.msg
+                        })
+                        self.$apply()
+                        resolve(0)
+                    } else {
+                        self.hideBtnLoading = true
+                        self.$apply()
+                        wepy.showToast({
+                            title: res.data.msg,
+                            icon: 'none',
+                            duration: 2000,
+                            mask: true
+                        })
+                        self.$apply()
+                        resolve(res.data.msg)
+                    }
+                    if (res.statusCode === 500 || res.statusCode === 502) {
+                        self.hideBtnLoading = true
+                        self.$apply()
+                        wepy.showToast({
+                            title: '服务器错误，请稍候再试',
+                            icon: 'none',
+                            duration: 2000,
+                            mask: true
+                        })
+                        self.$apply()
+                        resolve('服务器错误')
+                    }
+                }, function(err) {
+                    console.log(err)
+                })
+            })
+        } else {
+            return new Promise((resolve, reject) => {
+                wepy.showToast({
+                    title: '信息输入有误',
+                    icon: 'none',
+                    duration: 2000,
+                    mask: true
+                })
+                resolve('invalid username or password')
+            })
+        }
+    }
+
     onLoad() {
         this.getOneISAll()
-        // this.idconfig.value = wepy.getStorageSync('username') || ''
-        // this.pwdconfig.value = wepy.getStorageSync('password') || ''
-        // console.log(wepy.getStorageSync('username'))
-        // this.idconfig.value = '0987654321'
-        // this.$apply()
+        let res = wepy.getStorageSync('result') || null
+        if (!res) {
+            this.queryGrade()
+        } else {
+            setTimeout(function() {
+                gotResult = true
+            }, 100)
+            this.$parent.globalData.result = res
+        }
+    }
+
+    onShow() {
+        gotResult = false
     }
 }
 </script>
