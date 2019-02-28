@@ -76,6 +76,7 @@ export default class extends wepy.app {
     onLaunch() {
         this.globalData.username = wepy.getStorageSync('username') || ''
         this.globalData.password = wepy.getStorageSync('passwd') || ''
+        this.globalData.result = wepy.getStorageSync('result')
     }
 }
 </script>

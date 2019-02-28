@@ -1,24 +1,109 @@
 <style lang="less">
+.bd {
+    border: solid 1rpx;
+}
 
+.panel {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    margin-top: 10rpx;
+    .title {
+        padding: 20rpx;
+        font-size: 12px;
+        display: block;
+    }
+    .info {
+        border-style: solid;
+        border-color: #e1e1e1;
+        border-width: 0;
+        font-size: 12px;
+        background-color: #fff;
+        display: block; // padding: 10px;
+    }
+}
 </style>
 
 <template>
 <view class="kai-content">
     <view>
-        成绩
+        <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
+            <view class="panel panel-container">
+                <view slot="title" class="title">{{semister}}</view>
+                <view class="info">
+                    <repeat for="{{result.grades[i]}}" key="grade-{{index}}" index="index" item="grade">
+                        <cell :title="grade.name">
+                            <view slot="detail">
+                                {{grade.grade}}
+                                <!-- FIXME: 根据课程名称及是否缓存控制复选框的状态 -->
+                                <switch :switchItem.sync="switchItem[grade.name] ? switchItem[grade.name] : defaultItem" @onChange.user="change"></switch>
+                            </view>
+                        </cell>
+                    </repeat>
+                </view>
+            </view>
+        </repeat>
     </view>
 </view>
 </template>
 
 <script>
 import wepy from 'wepy'
+import Cell from '../kaiui/cell/index'
+import Switch from '../kaiui/switch/index'
+
 export default class Grade extends wepy.page {
     config = {
         navigationBarTitleText: '成绩'
     }
-    data = {}
+    components = {
+        'cell': Cell,
+        'switch': Switch
+    }
+    data = {
+        result: {},
+        cellData: [{
+                panelTitle: '基础用法',
+                title: '标题',
+                subtitle: '自定义内容',
+                arrow: true,
+                detail: '内容'
+            },
+            {
+                panelTitle: '带图标用法',
+                title: '标题',
+                subtitle: '自定义内容',
+                arrow: true,
+                detail: '内容',
+                access: true
+            }
+        ],
+        switchItem: {
+            '研究训练': {
+                checked: false,
+                disabled: true,
+                componentId: '研究训练',
+                loading: false
+            }
+        },
+        defaultItem: {
+            checked: true,
+            disabled: false,
+            componentId: 'switch1'
+        }
+    }
+    methods = {
+        change(e) {
+            console.log(e)
+            this.switchItem.disabled = true
+        }
+    }
     onLoad() {
         console.log(this.$parent.globalData.result)
+        this.result = this.$parent.globalData.result
+        this.result.semister.reverse()
+        this.result.grades.reverse()
+        this.switchItem.checked = true
     }
 }
 </script>
