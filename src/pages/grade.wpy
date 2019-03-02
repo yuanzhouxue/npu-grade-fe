@@ -1,15 +1,11 @@
 <style lang="less">
-.bd {
-    border: solid 1rpx;
-}
-
 .panel {
     width: 100%;
     box-sizing: border-box;
     text-align: left;
     margin-top: 10rpx;
     .title {
-        padding: 20rpx;
+        padding: 10rpx;
         font-size: 12px;
         display: block;
     }
@@ -22,27 +18,98 @@
         display: block; // padding: 10px;
     }
 }
+
+.cell-detail {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    .cell-detail-text-item {
+        margin-left: 10rpx;
+        margin-right: 10rpx;
+        width: 60rpx;
+        height: 100%;
+        line-height: 200%;
+        text-align: center;
+        font-size: 14px;
+        flex: none;
+    }
+    .cell-detail-switch-item {
+        margin-left: 10rpx;
+        margin-right: 10rpx;
+        flex: none;
+    }
+}
+
+.loadmore {
+    font-size: 12px;
+    margin-bottom: 20px;
+    color: #aaa;
+    position: relative;
+    width: 65%;
+    margin: 21px auto;
+    line-height: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.topfix {
+    top: 0;
+    width: 100%;
+    height: 24px;
+    position: fixed;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 14px;
+    line-height: 24px;
+    text-align: center;
+    font-weight: bold;
+    background: white;
+    // switch-circle的z-index是2
+    z-index: 3;
+}
+
+.tophidden {
+    top: 0;
+    width: 100%;
+    height: 24px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
 </style>
 
 <template>
 <view class="kai-content">
-    <view>
-        <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
-            <view class="panel panel-container">
-                <view slot="title" class="title">{{semister}}</view>
-                <view class="info">
-                    <repeat for="{{result.grades[i]}}" key="grade-{{index}}" index="index" item="grade">
-                        <cell :title="grade.name">
-                            <view slot="detail">
-                                {{grade.grade}}
-                                <!-- FIXME: 根据课程名称及是否缓存控制复选框的状态 -->
-                                <switch :switchItem.sync="switchItem[grade.name] ? switchItem[grade.name] : defaultItem" @onChange.user="change"></switch>
-                            </view>
-                        </cell>
-                    </repeat>
+    <view class="page">
+        <view wx:if="{{!!credit}}" class="topfix">{{credit}}</view>
+        <view class="page_bd">
+            <view  wx:if="{{!!credit}}" class="tophidden"></view>
+            <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
+                <view class="panel panel-container">
+                    <view slot="title" class="title">{{semister}}</view>
+                    <view class="info">
+                        <repeat for="{{result.grades[i]}}" key="grade-{{index}}" index="index" item="grade">
+                            <cell :title="grade.name">
+                                <view slot="detail" class="cell-detail">
+                                    <view class="cell-detail-text-item">
+                                        {{grade.score}}
+                                    </view>
+                                    <view class="cell-detail-text-item">
+                                        {{grade.grade}}
+                                    </view>
+                                    <switch class="cell-detail-switch-item" :switchItem.sync="switchItems[grade.name]" @onChange.user="change"></switch>
+                                </view>
+                            </cell>
+                        </repeat>
+                    </view>
                 </view>
-            </view>
-        </repeat>
+            </repeat>
+        </view>
+        <view class="loadmore page_ft">
+            <text class="lighter">————</text>
+            <text> 我是有底线的 </text>
+            <text class="lighter">————</text>
+        </view>
     </view>
 </view>
 </template>
@@ -62,48 +129,58 @@ export default class Grade extends wepy.page {
     }
     data = {
         result: {},
-        cellData: [{
-                panelTitle: '基础用法',
-                title: '标题',
-                subtitle: '自定义内容',
-                arrow: true,
-                detail: '内容'
-            },
-            {
-                panelTitle: '带图标用法',
-                title: '标题',
-                subtitle: '自定义内容',
-                arrow: true,
-                detail: '内容',
-                access: true
+        switchItems: {},
+        credit: 0
+    }
+    watch = {
+        switchItems(newValue, oldValue) {
+            let totalCredits = 0
+            let totalGradeTimesCredits = 0
+            for (let g of this.result.grades) {
+                for (let gg of g) {
+                    if (newValue[gg.name].checked) {
+                        totalCredits += Number(gg.score)
+                        totalGradeTimesCredits += Number(gg.score) * Number(gg.grade)
+                    }
+                }
             }
-        ],
-        switchItem: {
-            '研究训练': {
-                checked: false,
-                disabled: true,
-                componentId: '研究训练',
-                loading: false
-            }
-        },
-        defaultItem: {
-            checked: true,
-            disabled: false,
-            componentId: 'switch1'
+            this.credit = (totalGradeTimesCredits / totalCredits).toFixed(4)
         }
     }
     methods = {
         change(e) {
-            console.log(e)
-            this.switchItem.disabled = true
+            this.switchItems[e.componentId].checked = e.checked
+            wepy.setStorage({
+                key: 'switchItems',
+                data: this.switchItems
+            })
         }
     }
     onLoad() {
-        console.log(this.$parent.globalData.result)
         this.result = this.$parent.globalData.result
         this.result.semister.reverse()
         this.result.grades.reverse()
-        this.switchItem.checked = true
+        let switchItems = wepy.getStorageSync('switchItems') || {}
+        for (let g of this.result.grades) {
+            for (let gg of g) {
+                if (!(gg.name in switchItems)) {
+                    if (isNaN(gg.grade)) {
+                        switchItems[gg.name] = {
+                            checked: false,
+                            disabled: true,
+                            componentId: gg.name
+                        }
+                    } else {
+                        switchItems[gg.name] = {
+                            checked: true,
+                            disabled: false,
+                            componentId: gg.name
+                        }
+                    }
+                }
+            }
+        }
+        this.switchItems = switchItems
     }
 }
 </script>

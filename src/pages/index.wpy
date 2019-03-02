@@ -44,7 +44,6 @@
 
 <script>
 import wepy from 'wepy'
-import Panel from '../kaiui/panel/index'
 import Input from '../kaiui/input/index'
 import Loading from '../kaiui/loading/index'
 
@@ -67,7 +66,6 @@ export default class Index extends wepy.page {
         navigationBarTitleText: '学分积'
     }
     components = {
-        'k-panel': Panel,
         'input-id': Input,
         'input-password': Input,
         'loading': Loading
@@ -101,14 +99,12 @@ export default class Index extends wepy.page {
 
     methods = {
         async onConfirm() {
-            console.log('confirm')
             if (!gotResult) {
                 wepy.showLoading({
                     title: 'Loading...',
                     mask: true
                 })
                 let taskResult = await this.queryGrade()
-                console.log(taskResult)
                 wepy.hideLoading()
                 if (taskResult !== 0) {
                     return
@@ -117,7 +113,6 @@ export default class Index extends wepy.page {
             wepy.navigateTo({
                 url: './grade'
             })
-            console.log('end')
         },
         onIdBlur(e) {
             this.$parent.globalData.username = e
@@ -125,12 +120,24 @@ export default class Index extends wepy.page {
                 key: 'username',
                 data: e
             })
+            wepy.removeStorage({
+                key: 'result'
+            })
+            wepy.removeStorage({
+                key: 'switchItems'
+            })
         },
         onPwdBlur(e) {
             this.$parent.globalData.password = e
             wepy.setStorage({
                 key: 'passwd',
                 data: e
+            })
+            wepy.removeStorage({
+                key: 'result'
+            })
+            wepy.removeStorage({
+                key: 'switchItems'
             })
         }
     }
@@ -159,11 +166,9 @@ export default class Index extends wepy.page {
                     dataType: 'json'
                 }).then(function(res) {
                     if (res.data.code === '0') {
-                        console.log(res)
                         self.hideBtnLoading = true
                         gotResult = true
                         self.$parent.globalData.result = res.data.msg
-                        // TODO: 决定是否存储查询结果(onLoad里面有判断)
                         wepy.setStorage({
                             key: 'result',
                             data: res.data.msg
@@ -194,8 +199,6 @@ export default class Index extends wepy.page {
                         self.$apply()
                         resolve('服务器错误')
                     }
-                }, function(err) {
-                    console.log(err)
                 })
             })
         } else {
@@ -213,15 +216,7 @@ export default class Index extends wepy.page {
 
     onLoad() {
         this.getOneISAll()
-        let res = wepy.getStorageSync('result') || null
-        if (!res) {
-            this.queryGrade()
-        } else {
-            setTimeout(function() {
-                gotResult = true
-            }, 100)
-            this.$parent.globalData.result = res
-        }
+        this.queryGrade()
     }
 
     onShow() {
