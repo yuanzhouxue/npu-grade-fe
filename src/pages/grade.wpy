@@ -64,8 +64,7 @@
     line-height: 24px;
     text-align: center;
     font-weight: bold;
-    background: white;
-    // switch-circle的z-index是2
+    background: white; // switch-circle的z-index是2
     z-index: 3;
 }
 
@@ -76,6 +75,14 @@
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
+.reddot {
+    border-radius: 50%;
+    width: 5px;
+    height: 5px;
+    color: red;
+    background-color: red;
+}
 </style>
 
 <template>
@@ -83,7 +90,7 @@
     <view class="page">
         <view wx:if="{{!!credit}}" class="topfix">{{credit}}</view>
         <view class="page_bd">
-            <view  wx:if="{{!!credit}}" class="tophidden"></view>
+            <view wx:if="{{!!credit}}" class="tophidden"></view>
             <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
                 <view class="panel panel-container">
                     <view slot="title" class="title">{{semister}}</view>
@@ -91,13 +98,14 @@
                         <repeat for="{{result.grades[i]}}" key="grade-{{index}}" index="index" item="grade">
                             <cell :title="grade.name">
                                 <view slot="detail" class="cell-detail">
+                                    <view wx:if="{{!!newItem[grade.name+grade.grade]}}" class="reddot"></view>
                                     <view class="cell-detail-text-item">
                                         {{grade.score}}
                                     </view>
                                     <view class="cell-detail-text-item">
                                         {{grade.grade}}
                                     </view>
-                                    <switch class="cell-detail-switch-item" :switchItem.sync="switchItems[grade.name]" @onChange.user="change"></switch>
+                                    <switch class="cell-detail-switch-item" :switchItem.sync="switchItems[grade.name+grade.grade]" @onChange.user="change"></switch>
                                 </view>
                             </cell>
                         </repeat>
@@ -130,7 +138,8 @@ export default class Grade extends wepy.page {
     data = {
         result: {},
         switchItems: {},
-        credit: 0
+        credit: 0,
+        newItem: {}
     }
     watch = {
         switchItems(newValue, oldValue) {
@@ -138,7 +147,7 @@ export default class Grade extends wepy.page {
             let totalGradeTimesCredits = 0
             for (let g of this.result.grades) {
                 for (let gg of g) {
-                    if (newValue[gg.name].checked) {
+                    if (newValue[gg.name + gg.grade].checked) {
                         totalCredits += Number(gg.score)
                         totalGradeTimesCredits += Number(gg.score) * Number(gg.grade)
                     }
@@ -163,18 +172,20 @@ export default class Grade extends wepy.page {
         let switchItems = wepy.getStorageSync('switchItems') || {}
         for (let g of this.result.grades) {
             for (let gg of g) {
-                if (!(gg.name in switchItems)) {
+                let itemId = gg.name + gg.grade
+                if (!(itemId in switchItems)) {
+                    this.newItem[itemId] = true
                     if (isNaN(gg.grade)) {
-                        switchItems[gg.name] = {
+                        switchItems[itemId] = {
                             checked: false,
                             disabled: true,
-                            componentId: gg.name
+                            componentId: itemId
                         }
                     } else {
-                        switchItems[gg.name] = {
+                        switchItems[itemId] = {
                             checked: true,
                             disabled: false,
-                            componentId: gg.name
+                            componentId: itemId
                         }
                     }
                 }
