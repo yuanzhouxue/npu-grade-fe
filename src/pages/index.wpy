@@ -11,11 +11,11 @@
     <view class="page_bd">
         <view class="padding-10 font-12">学号</view>
         <view style="background-color: #fff;">
-            <input-id :config.sync="idconfig" @onBlur.user="onIdBlur"></input-id>
+            <input-id :config.sync="idconfig" @onInput.user="onIdInput"></input-id>
         </view>
         <view class="padding-10 font-12">密码</view>
         <view style="background-color: #fff;">
-            <input-password :config.sync="pwdconfig" @onBlur.user="onPwdBlur"></input-password>
+            <input-password :config.sync="pwdconfig" @onInput.user="onPwdInput"></input-password>
         </view>
         <view class="padding-10">
             <button class="btn-loading" type="primary" @tap="onConfirm">
@@ -99,13 +99,16 @@ export default class Index extends wepy.page {
 
     methods = {
         async onConfirm() {
+            wepy.setStorage({
+                key: 'username',
+                data: this.$parent.globalData.username
+            })
+            wepy.setStorage({
+                key: 'passwd',
+                data: this.$parent.globalData.password
+            })
             if (!gotResult) {
-                wepy.showLoading({
-                    title: 'Loading...',
-                    mask: true
-                })
-                let taskResult = await this.queryGrade()
-                wepy.hideLoading()
+                let taskResult = await this.queryGrade(this.$parent.globalData.username, this.$parent.globalData.password)
                 if (taskResult !== 0) {
                     return
                 }
@@ -114,28 +117,14 @@ export default class Index extends wepy.page {
                 url: './grade'
             })
         },
-        onIdBlur(e) {
+        onIdInput(e) {
             this.$parent.globalData.username = e
-            wepy.setStorage({
-                key: 'username',
-                data: e
-            })
-            wepy.removeStorage({
-                key: 'result'
-            })
             wepy.removeStorage({
                 key: 'switchItems'
             })
         },
-        onPwdBlur(e) {
+        onPwdInput(e) {
             this.$parent.globalData.password = e
-            wepy.setStorage({
-                key: 'passwd',
-                data: e
-            })
-            wepy.removeStorage({
-                key: 'result'
-            })
             wepy.removeStorage({
                 key: 'switchItems'
             })
@@ -149,18 +138,22 @@ export default class Index extends wepy.page {
         this.$apply()
     }
 
-    events = {}
-
-    async queryGrade() {
+    async queryGrade(username, password, showLoading = true) {
         const self = this
-        if (self.$parent.globalData.username && self.$parent.globalData.password.length > 5) {
+        if (username && password.length > 5) {
             self.hideBtnLoading = false
             return new Promise((resolve, reject) => {
+                if (showLoading) {
+                    wepy.showLoading({
+                        title: 'Loading...',
+                        mask: true
+                    })
+                }
                 wepy.request({
                     url: queryGradeUrl,
                     data: {
-                        id: self.$parent.globalData.username,
-                        passwd: encrypt.encrypt(self.$parent.globalData.password)
+                        id: username,
+                        passwd: encrypt.encrypt(password)
                     },
                     method: 'POST',
                     dataType: 'json'
@@ -169,11 +162,8 @@ export default class Index extends wepy.page {
                         self.hideBtnLoading = true
                         gotResult = true
                         self.$parent.globalData.result = res.data.msg
-                        wepy.setStorage({
-                            key: 'result',
-                            data: res.data.msg
-                        })
                         self.$apply()
+                        if (showLoading) wepy.hideLoading()
                         resolve(0)
                     } else {
                         self.hideBtnLoading = true
@@ -185,6 +175,7 @@ export default class Index extends wepy.page {
                             mask: true
                         })
                         self.$apply()
+                        if (showLoading) wepy.hideLoading()
                         resolve(res.data.msg)
                     }
                     if (res.statusCode === 500 || res.statusCode === 502) {
@@ -197,6 +188,7 @@ export default class Index extends wepy.page {
                             mask: true
                         })
                         self.$apply()
+                        if (showLoading) wepy.hideLoading()
                         resolve('服务器错误')
                     }
                 })
@@ -216,7 +208,9 @@ export default class Index extends wepy.page {
 
     onLoad() {
         this.getOneISAll()
-        this.queryGrade()
+        if (this.$parent.globalData.username.length === 10 && this.$parent.globalData.password.length > 5) {
+            this.queryGrade(this.$parent.globalData.username, this.$parent.globalData.password, false)
+        }
     }
 
     onShow() {

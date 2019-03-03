@@ -192,6 +192,10 @@ export default class Grade extends wepy.page {
             }
         }
         this.switchItems = switchItems
+        wepy.setStorage({
+            key: 'switchItems',
+            data: switchItems
+        })
     }
 }
 </script>
