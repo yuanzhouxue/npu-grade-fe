@@ -57,5 +57,12 @@ export default class More extends wepy.page {
         navigationBarTitleText: '致谢与说明'
     }
     data = {}
+    onShareAppMessage(res) {
+        return {
+            title: '学分积查询',
+            path: '/pages/index',
+            imageUrl: '../imgs/papercraft.png'
+        }
+    }
 }
 </script>

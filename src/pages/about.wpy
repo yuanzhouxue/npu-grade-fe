@@ -42,6 +42,18 @@
     display: inline-block;
     margin-right: 5px;
 }
+
+.share-btn {
+    background: white;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    padding: 14px 15px;
+    border: solid;
+    line-height: 1.4em;
+    border: 0 solid #e5e5e5;
+    border-bottom-width: 1px;
+}
 </style>
 
 <template>
@@ -56,7 +68,7 @@
                 <block>
                     <cell1 title="致谢与说明" :arrow="arrow" :access="arrow" :item="thanksData"></cell1>
                     <cell2 title="意见反馈" :arrow="arrow" :access="arrow" :item="feedbackData"></cell2>
-                    <cell3 title="分享给朋友" :arrow="arrow" :access="arrow" :item="shareData"></cell3>
+                    <button class="share-btn cell-list" open-type="share">分享给朋友</button>
                 </block>
             </cellgroup>
         </panel>
@@ -77,8 +89,7 @@ export default class About extends wepy.page {
         'panel': Panel,
         'cellgroup': CellGroup,
         'cell1': Cell,
-        'cell2': Cell,
-        'cell3': Cell
+        'cell2': Cell
     }
     data = {
         arrow: true,
@@ -106,9 +117,16 @@ export default class About extends wepy.page {
                     })
                     break
                 case 'share':
-                    console.log('share')
+
                     break
             }
+        }
+    }
+    onShareAppMessage(res) {
+        return {
+            title: '学分积查询',
+            path: '/pages/index',
+            imageUrl: '../imgs/papercraft.png'
         }
     }
 }

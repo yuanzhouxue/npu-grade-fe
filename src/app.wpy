@@ -82,5 +82,13 @@ export default class extends wepy.app {
         this.globalData.username = wepy.getStorageSync('username') || ''
         this.globalData.password = wepy.getStorageSync('passwd') || ''
     }
+
+    onShareAppMessage(res) {
+        return {
+            title: '学分积查询',
+            path: '/pages/index',
+            imageUrl: '../imgs/papercraft.png'
+        }
+    }
 }
 </script>

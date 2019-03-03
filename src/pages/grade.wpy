@@ -197,5 +197,12 @@ export default class Grade extends wepy.page {
             data: switchItems
         })
     }
+    onShareAppMessage(res) {
+        return {
+            title: '学分积查询',
+            path: '/pages/index',
+            imageUrl: '../imgs/papercraft.png'
+        }
+    }
 }
 </script>

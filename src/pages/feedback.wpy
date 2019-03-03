@@ -97,6 +97,7 @@ export default class More extends wepy.page {
             }
             this.content = ''
             this.contact = ''
+            this.$apply()
         },
         contentInput(e) {
             this.content = e.detail.value
@@ -106,5 +107,12 @@ export default class More extends wepy.page {
         }
     }
     onLoad() {}
+    onShareAppMessage(res) {
+        return {
+            title: '学分积查询',
+            path: '/pages/index',
+            imageUrl: '../imgs/papercraft.png'
+        }
+    }
 }
 </script>
