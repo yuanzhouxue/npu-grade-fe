@@ -45,13 +45,14 @@
 
 .share-btn {
     background: white;
-    width: 100%;
+    width: auto;
     text-align: left;
     font-size: 14px;
     padding: 14px 15px;
-    border: solid;
+    margin: 10rpx;
     line-height: 1.4em;
     border: 0 solid #e5e5e5;
+    border-radius: 0;
     border-bottom-width: 1px;
 }
 </style>
@@ -63,14 +64,12 @@
             <view class="bg"></view>
         </view>
         <panel custom-class="panel-container">
-            <view slot="title" class="title">关于</view>
-            <cellgroup custom-class="single-cellgroup">
-                <block>
-                    <cell1 title="致谢与说明" :arrow="arrow" :access="arrow" :item="thanksData"></cell1>
-                    <cell2 title="意见反馈" :arrow="arrow" :access="arrow" :item="feedbackData"></cell2>
-                    <button class="share-btn cell-list" open-type="share">分享给朋友</button>
-                </block>
-            </cellgroup>
+            <view slot="title" class="title"></view>
+            <view>
+                <button class="share-btn cell-list" @tap="thanks">致谢与说明</button>
+                <button class="share-btn cell-list" open-type="feedback">反馈与建议</button>
+                <button class="share-btn cell-list" open-type="share">分享给朋友</button>
+            </view>
         </panel>
     </view>
 </view>
@@ -79,47 +78,19 @@
 <script>
 import wepy from 'wepy'
 import Panel from '../kaiui/panel/index'
-import CellGroup from '../kaiui/cell-group/index'
-import Cell from '../kaiui/cell/index'
 export default class About extends wepy.page {
     config = {
         navigationBarTitleText: ''
     }
     components = {
-        'panel': Panel,
-        'cellgroup': CellGroup,
-        'cell1': Cell,
-        'cell2': Cell
+        'panel': Panel
     }
-    data = {
-        arrow: true,
-        thanksData: {
-            id: 'thanks'
-        },
-        feedbackData: {
-            id: 'feedback'
-        },
-        shareData: {
-            id: 'share'
-        }
-    }
-    events = {
-        'item-tap': (item) => {
-            switch (item.id) {
-                case 'thanks':
-                    wepy.navigateTo({
-                        url: './thanks'
-                    })
-                    break
-                case 'feedback':
-                    wepy.navigateTo({
-                        url: './feedback'
-                    })
-                    break
-                case 'share':
-
-                    break
-            }
+    data = {}
+    methods = {
+        thanks() {
+            wepy.navigateTo({
+                url: './thanks'
+            })
         }
     }
     onShareAppMessage(res) {
