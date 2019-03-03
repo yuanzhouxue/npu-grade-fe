@@ -1,5 +1,5 @@
 <style lang="less">
-.article {
+.quote {
     margin: 20rpx;
     background-color: #d7d7d7;
     border-left: solid 10rpx #a4a4a4;
@@ -18,7 +18,7 @@
             <input-password :config.sync="pwdconfig" @onBlur.user="onPwdBlur"></input-password>
         </view>
         <view class="padding-10">
-            <button class="btn-loading" type="primary" plain @tap="onConfirm">
+            <button class="btn-loading" type="primary" @tap="onConfirm">
                 确定
                 <view hidden="{{hideBtnLoading}}">
                     <loading type="circle"/>
@@ -27,7 +27,7 @@
         </view>
     </view>
     <view class="page_ft">
-        <view hidden="{{!oneContent}}" class="article">
+        <view hidden="{{!oneContent}}" class="quote">
             <view class="padding-10 font-14">
                 <text>
                     {{oneContent}}

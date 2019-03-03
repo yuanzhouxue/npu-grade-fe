@@ -1,0 +1,110 @@
+<style lang="less">
+.text-box {
+    width: 710rpx;
+    margin: 20rpx;
+    border: solid 1rpx;
+    background: white;
+    .textarea {
+        width: 680rpx;
+        margin: 14rpx;
+    }
+    .contact-input {
+        padding: 14rpx;
+    }
+}
+</style>
+
+<template>
+<view class="kai-content">
+    <view class="page">
+        <view class="page_bd">
+            <form bindsubmit="submit">
+                <view class="text-box">
+                    <textarea class="textarea" maxlength="400" placeholder="请输入内容" name="content" value="{{content}}" @input="contentInput" />
+                </view>
+                <view class="text-box">
+                    <input class="contact-input" name="contact" placeholder="联系方式(选填)" maxlength="40" value="{{contact}}" @input="contactInput" />
+                </view>
+                <view class="padding-10">
+                    <button form-type="submit" type="primary" plain="{{!content}}">提交</button>
+                </view>
+            </form>
+        </view>
+    </view>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+const issueUrl = 'https://wx.seekecho.cn/issue'
+export default class More extends wepy.page {
+    config = {
+        navigationBarTitleText: '反馈'
+    }
+    data = {
+        content: '',
+        contact: ''
+    }
+    methods = {
+        async submit(e) {
+            console.log(e)
+            if (e.detail.value.content) {
+                let msg = e.detail.value.content + 'EOC' + e.detail.value.contact
+                wepy.showLoading({
+                    title: 'Loading...',
+                    mask: true
+                })
+                let res = await wepy.login()
+                wepy.request({
+                    url: issueUrl,
+                    data: {
+                        text: msg,
+                        code: res.code
+                    },
+                    method: 'PUT',
+                    dataType: 'json'
+                }).then(
+                    function(res) {
+                        if (res.statusCode === 200 && res.data.code === '0') {
+                            wepy.hideLoading()
+                            wepy.showToast({
+                                title: '反馈成功',
+                                icon: 'success',
+                                duration: 2000,
+                                mask: true
+                            })
+                        } else {
+                            wepy.hideLoading()
+                            wepy.showToast({
+                                title: '反馈失败',
+                                icon: 'none',
+                                duration: 2000,
+                                mask: true
+                            })
+                        }
+                    },
+                    function(err) {
+                        console.log(err)
+                        wepy.hideLoading()
+                        wepy.showToast({
+                            title: '反馈失败',
+                            icon: 'none',
+                            duration: 2000,
+                            mask: true
+                        })
+                    }
+                )
+            }
+            this.content = ''
+            this.contact = ''
+        },
+        contentInput(e) {
+            this.content = e.detail.value
+        },
+        contactInput(e) {
+            this.contact = e.detail.value
+        }
+    }
+    onLoad() {}
+}
+</script>

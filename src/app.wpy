@@ -7,10 +7,12 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    align-items: center;
     height: 100%;
 }
 
 .page_bd {
+    width: 100%;
     flex: 1 0 auto;
 }
 
@@ -29,7 +31,9 @@ export default class extends wepy.app {
             'pages/index',
             'pages/more',
             'pages/about',
-            'pages/grade'
+            'pages/grade',
+            'pages/thanks',
+            'pages/feedback'
         ],
         window: {
             backgroundTextStyle: 'light',
@@ -46,12 +50,12 @@ export default class extends wepy.app {
                     'iconPath': 'imgs/tabbar/ghost.png',
                     'selectedIconPath': 'imgs/tabbar/ghost_selected.png'
                 },
-                {
-                    'pagePath': 'pages/more',
-                    'text': '更多',
-                    'iconPath': 'imgs/tabbar/more.png',
-                    'selectedIconPath': 'imgs/tabbar/more_selected.png'
-                },
+                // {
+                //     'pagePath': 'pages/more',
+                //     'text': '更多',
+                //     'iconPath': 'imgs/tabbar/more.png',
+                //     'selectedIconPath': 'imgs/tabbar/more_selected.png'
+                // },
                 {
                     'pagePath': 'pages/about',
                     'text': '关于',

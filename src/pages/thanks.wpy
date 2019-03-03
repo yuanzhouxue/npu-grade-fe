@@ -1,0 +1,61 @@
+<style lang="less">
+
+.text {
+    line-height: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+</style>
+
+<template>
+<view class="kai-content">
+    <view>
+        <view>
+            <view class="font-16 font-bold text-pull-center text">
+                致谢
+            </view>
+            <view class="font-14 text">
+                感谢各位同学对本程序的支持，也感谢在本程序开发过程中提供建议和帮助的朋友们。
+                各位在使用过程中有任何建议请反馈呀。
+            </view>
+            <view class="font-14 text">
+                本程序较前一版界面做了较大的改变，添加了一些人性化的功能(新成绩提示和记住选择等)。
+                在重构过程中，使用了WePY开源框架和适用于WePY的kai-ui，以及iconfont中提供的图标，在此表示感谢。
+            </view>
+        </view>
+        <view>
+            <view class="font-16 font-bold text">
+                说明
+            </view>
+            <view class="font-14 color-red text">
+                注意：本程序不是西北工业大学官方开发，也不是和教务处合作开发
+            </view>
+            <view class="font-14 text">
+                程序工作原理是使用用户的学号和密码模拟登录教务处，然后获取相应的信息。
+                程序后台并没有存储用户的任何个人信息，所有信息均存储在小程序的内部存储中。用户删除小程序后即可自动清除用户信息。
+            </view>
+        </view>
+        <view>
+            <view class="font-16 font-bold text-pull-center text">
+                更新
+            </view>
+            <view class="font-14 text">
+                2019-03-02 前端重构
+            </view>
+        </view>
+    </view>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class More extends wepy.page {
+    config = {
+        navigationBarTitleText: '致谢与说明'
+    }
+    data = {}
+}
+</script>
