@@ -4,10 +4,27 @@
     box-sizing: border-box;
     text-align: left;
     margin-top: 10rpx;
-    .title {
+    .semester {
         padding: 10rpx;
+        padding-right: 15px;
         font-size: 12px;
-        display: block;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        .semester-name {
+            flex: auto;
+            font-size: 12px;
+        }
+        .semester-opt {
+            flex: none;
+            font-size: 12px;
+            width: 52px;
+            margin-left: 10rpx;
+            margin-right: 10rpx;
+            text-align: center;
+            color: rgb(93, 155, 229);
+        }
     }
     .info {
         border-style: solid;
@@ -93,7 +110,14 @@
             <view wx:if="{{!!credit}}" class="tophidden"></view>
             <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
                 <view class="panel panel-container">
-                    <view slot="title" class="title">{{semister}}</view>
+                    <view @tap="titleTap({{i}})" slot="title" class="semester">
+                        <view class="semester-name">
+                            {{semister}}
+                        </view>
+                        <view class="semester-opt">
+                            全选
+                        </view>
+                    </view>
                     <view class="info">
                         <repeat for="{{result.grades[i]}}" key="grade-{{index}}" index="index" item="grade">
                             <cell :title="grade.name">
@@ -127,6 +151,8 @@ import wepy from 'wepy'
 import Cell from '../kaiui/cell/index'
 import Switch from '../kaiui/switch/index'
 
+let selectAllStatus = {}
+
 export default class Grade extends wepy.page {
     config = {
         navigationBarTitleText: '成绩'
@@ -153,7 +179,8 @@ export default class Grade extends wepy.page {
                     }
                 }
             }
-            this.credit = (totalGradeTimesCredits / totalCredits).toFixed(4)
+            let credit = (totalGradeTimesCredits / totalCredits).toFixed(4)
+            this.credit = isNaN(credit) ? '0' : credit
         }
     }
     methods = {
@@ -163,12 +190,32 @@ export default class Grade extends wepy.page {
                 key: 'switchItems',
                 data: this.switchItems
             })
+        },
+        titleTap(index) {
+            const semesterName = this.data.result.semister[index]
+            selectAllStatus[semesterName] = !selectAllStatus[semesterName]
+            for (let g of this.data.result.grades[index]) {
+                const itemName = g.name + g.grade
+                if (!this.switchItems[itemName].disabled) {
+                    this.switchItems[itemName].checked = selectAllStatus[semesterName]
+                }
+            }
+            wepy.setStorage({
+                key: 'switchItems',
+                data: this.switchItems
+            })
         }
     }
     onLoad() {
         this.result = this.$parent.globalData.result
+        console.log(this.result)
         this.result.semister.reverse()
         this.result.grades.reverse()
+
+        for (let s of this.result.semister) {
+            selectAllStatus[s] = true
+        }
+
         let switchItems = wepy.getStorageSync('switchItems') || {}
         for (let g of this.result.grades) {
             for (let gg of g) {

@@ -46,7 +46,7 @@
 .share-btn {
     background: white;
     width: auto;
-    text-align: left;
+    text-align: center;
     font-size: 14px;
     padding: 14px 15px;
     margin: 10rpx;
@@ -80,7 +80,7 @@ import wepy from 'wepy'
 import Panel from '../kaiui/panel/index'
 export default class About extends wepy.page {
     config = {
-        navigationBarTitleText: ''
+        navigationBarTitleText: '关于'
     }
     components = {
         'panel': Panel

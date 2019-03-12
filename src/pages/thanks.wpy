@@ -43,6 +43,9 @@
                 更新
             </view>
             <view class="font-14 text">
+                2019-03-12 添加全选功能
+            </view>
+            <view class="font-14 text">
                 2019-03-02 前端重构
             </view>
         </view>
