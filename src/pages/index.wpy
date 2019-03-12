@@ -19,11 +19,11 @@
         </view>
         <view class="padding-10">
             <button class="btn-loading" type="primary" @tap="onConfirm">
-                确定
-                <view hidden="{{hideBtnLoading}}">
-                    <loading type="circle"/>
-                </view>
-            </button>
+          确定
+          <view hidden="{{hideBtnLoading}}">
+            <loading type="circle" />
+          </view>
+        </button>
         </view>
     </view>
     <view class="page_ft">
@@ -37,7 +37,9 @@
                 </view>
             </view>
         </view>
-        <ad unit-id="adunit-ef4e486fa72774b2"></ad>
+        <view style="height: {{showAd ? auto : 0}}">
+            <ad unit-id="adunit-ef4e486fa72774b2"></ad>
+        </view>
     </view>
 </view>
 </template>
@@ -92,7 +94,8 @@ export default class Index extends wepy.page {
         },
         oneContent: '',
         oneAuthor: '',
-        hideBtnLoading: true
+        hideBtnLoading: true,
+        showAd: false
     }
 
     computed = {}
@@ -211,6 +214,10 @@ export default class Index extends wepy.page {
         if (this.$parent.globalData.username.length === 10 && this.$parent.globalData.password.length > 5) {
             this.queryGrade(this.$parent.globalData.username, this.$parent.globalData.password, false)
         }
+        setTimeout(() => {
+            this.showAd = true
+            this.$apply()
+        }, 30000)
     }
 
     onShow() {
