@@ -8,6 +8,9 @@
 
 <template>
 <view class="page">
+    <view class="page_hd" v-if="{{noticeText}}">
+        <noticeBar :text.sync="noticeText" componentId="noticeBar" :icon="icon"></noticeBar>
+    </view>
     <view class="page_bd">
         <view class="padding-10 font-12">学号</view>
         <view style="background-color: #fff;">
@@ -27,7 +30,7 @@
         </view>
     </view>
     <view class="page_ft">
-        <view hidden="{{!oneContent}}" class="quote">
+        <view v-if="{{oneContent}}" class="quote">
             <view class="padding-10 font-14">
                 <text>
                     {{oneContent}}
@@ -48,6 +51,7 @@
 import wepy from 'wepy'
 import Input from '../kaiui/input/index'
 import Loading from '../kaiui/loading/index'
+import NoticeBar from '../kaiui/noticeBar/index'
 
 import JSEncrypt from '../utils/rsa'
 const encrypt = new JSEncrypt()
@@ -70,7 +74,8 @@ export default class Index extends wepy.page {
     components = {
         'input-id': Input,
         'input-password': Input,
-        'loading': Loading
+        'loading': Loading,
+        'noticeBar': NoticeBar
     }
 
     mixins = []
@@ -95,7 +100,9 @@ export default class Index extends wepy.page {
         oneContent: '',
         oneAuthor: '',
         hideBtnLoading: true,
-        showAd: false
+        showAd: false,
+        noticeText: '',
+        icon: true
     }
 
     computed = {}
@@ -137,8 +144,15 @@ export default class Index extends wepy.page {
     async getOneISAll() {
         let res = await wepy.request('https://wx.seekecho.cn/one/api/channel/one/0/0')
         this.oneContent = res.data.data.content_list[0].forward
-        this.oneAuthor = 'by ' + res.data.data.content_list[0].words_info
+        this.oneAuthor = res.data.data.content_list[0].words_info
         this.$apply()
+    }
+
+    async getNotice() {
+        let res = await wepy.request('https://wx.seekecho.cn/notice')
+        this.noticeText = res.data.content
+        this.$apply()
+        this.$invoke('noticeBar', 'initNoticeBarScroll')
     }
 
     async queryGrade(username, password, showLoading = true) {
@@ -211,6 +225,7 @@ export default class Index extends wepy.page {
 
     onLoad() {
         this.getOneISAll()
+        this.getNotice()
         if (this.$parent.globalData.username.length === 10 && this.$parent.globalData.password.length > 5) {
             this.queryGrade(this.$parent.globalData.username, this.$parent.globalData.password, false)
         }

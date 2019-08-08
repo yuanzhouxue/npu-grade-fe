@@ -11,6 +11,11 @@
     height: 100%;
 }
 
+.page_hd {
+    width: 100%;
+    flex: 0 0 auto;
+}
+
 .page_bd {
     width: 100%;
     flex: 1 0 auto;
