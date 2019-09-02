@@ -131,6 +131,7 @@ export default class Index extends wepy.page {
         },
         onIdInput(e) {
             this.$parent.globalData.username = e
+            gotResult = false
             wepy.removeStorage({
                 key: 'switchItems'
             })
@@ -176,7 +177,7 @@ export default class Index extends wepy.page {
         let noticeDate = wepy.getStorageSync('noticeDate') || '1971-01-01 00:00:00'
         noticeDate = new Date(noticeDate)
         let current = new Date()
-        console.log(current)
+        // console.log(current)
         if (current.getFullYear() !== noticeDate.getFullYear() || current.getMonth() !== noticeDate.getMonth() || current.getDate() !== noticeDate.getDate()) {
             let res = await wepy.request(noticeUrl)
             this.noticeText = res.data.content
