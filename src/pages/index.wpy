@@ -8,7 +8,7 @@
 
 <template>
 <view class="page">
-    <view class="page_hd" v-if="{{noticeText}}">
+    <view class="page_hd" wx:if="{{noticeText}}">
         <noticeBar :text.sync="noticeText" componentId="noticeBar" :icon="icon"></noticeBar>
     </view>
     <view class="page_bd">
@@ -30,7 +30,7 @@
         </view>
     </view>
     <view class="page_ft">
-        <view v-if="{{oneContent}}" class="quote">
+        <view wx:if="{{oneContent}}" class="quote">
             <view class="padding-10 font-14">
                 <text>
                     {{oneContent}}
@@ -65,6 +65,8 @@ const publicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0cnl7FY0dSG5lgpIq
 encrypt.setPublicKey(publicKey)
 
 const queryGradeUrl = 'https://wx.seekecho.cn/query_grade'
+const noticeUrl = 'https://wx.seekecho.cn/notice'
+const oneAPI = 'https://wx.seekecho.cn/one/api/channel/one/0/0'
 let gotResult = false
 
 export default class Index extends wepy.page {
@@ -142,17 +144,57 @@ export default class Index extends wepy.page {
     }
 
     async getOneISAll() {
-        let res = await wepy.request('https://wx.seekecho.cn/one/api/channel/one/0/0')
-        this.oneContent = res.data.data.content_list[0].forward
-        this.oneAuthor = res.data.data.content_list[0].words_info
+        let oneDate = wepy.getStorageSync('oneDate') || '1971-01-01 00:00:00'
+        oneDate = new Date(oneDate)
+        let current = new Date()
+        // 判断当前时间与 “One一个” 一句话的时间相差是否超过一天
+        // 超过一天需要重新加载
+        if (current - oneDate > 24 * 60 * 60 * 1000) {
+            let res = await wepy.request(oneAPI)
+            this.oneContent = res.data.data.content_list[0].forward
+            this.oneAuthor = res.data.data.content_list[0].words_info
+            wepy.setStorage({
+                key: 'oneDate',
+                data: res.data.data.date
+            })
+            wepy.setStorage({
+                key: 'oneContent',
+                data: res.data.data.content_list[0].forward
+            })
+            wepy.setStorage({
+                key: 'oneAuthor',
+                data: res.data.data.content_list[0].words_info
+            })
+        } else {
+            this.oneContent = wepy.getStorageSync('oneContent') || ''
+            this.oneAuthor = wepy.getStorageSync('oneAuthor') || ''
+        }
         this.$apply()
     }
 
     async getNotice() {
-        let res = await wepy.request('https://wx.seekecho.cn/notice')
-        this.noticeText = res.data.content
+        let noticeDate = wepy.getStorageSync('noticeDate') || '1971-01-01 00:00:00'
+        noticeDate = new Date(noticeDate)
+        let current = new Date()
+        console.log(current)
+        if (current.getFullYear() !== noticeDate.getFullYear() || current.getMonth() !== noticeDate.getMonth() || current.getDate() !== noticeDate.getDate()) {
+            let res = await wepy.request(noticeUrl)
+            this.noticeText = res.data.content
+            wepy.setStorage({
+                key: 'noticeText',
+                data: res.data.content
+            })
+            wepy.setStorage({
+                key: 'noticeDate',
+                data: current.toString()
+            })
+        } else {
+            this.noticeText = wepy.getStorageSync('noticeText')
+        }
+        if (this.noticeText) {
+            this.$invoke('noticeBar', 'initNoticeBarScroll')
+        }
         this.$apply()
-        this.$invoke('noticeBar', 'initNoticeBarScroll')
     }
 
     async queryGrade(username, password, showLoading = true) {
