@@ -174,8 +174,8 @@ export default class Grade extends wepy.page {
             for (let g of this.result.grades) {
                 for (let gg of g) {
                     if (newValue[gg.name + gg.grade].checked) {
-                        totalCredits += Number(gg.score)
-                        totalGradeTimesCredits += Number(gg.score) * Number(gg.grade)
+                        totalCredits += this.getNumber(gg.score)
+                        totalGradeTimesCredits += this.getNumber(gg.score) * this.getNumber(gg.grade)
                     }
                 }
             }
@@ -208,7 +208,7 @@ export default class Grade extends wepy.page {
     }
     onLoad() {
         this.result = this.$parent.globalData.result
-        console.log(this.result)
+        // console.log(this.result)
         this.result.semister.reverse()
         this.result.grades.reverse()
 
@@ -222,19 +222,14 @@ export default class Grade extends wepy.page {
                 let itemId = gg.name + gg.grade
                 if (!(itemId in switchItems)) {
                     this.newItem[itemId] = true
-                    if (isNaN(gg.grade)) {
-                        switchItems[itemId] = {
-                            checked: false,
-                            disabled: true,
-                            componentId: itemId
-                        }
-                    } else {
-                        switchItems[itemId] = {
-                            checked: true,
-                            disabled: false,
-                            componentId: itemId
-                        }
+                    switchItems[itemId] = {
+                        checked: this.defaultSelectState(gg.grade),
+                        disabled: this.selectable(gg.grade),
+                        componentId: itemId
                     }
+                } else {
+                    switchItems[itemId].disabled = !this.selectable(gg.grade)
+                    // console.log(switchItems[itemId])
                 }
             }
         }
@@ -243,6 +238,34 @@ export default class Grade extends wepy.page {
             key: 'switchItems',
             data: switchItems
         })
+    }
+    // 判断某类成绩是否可选
+    selectable(grade) {
+        if (!isNaN(grade)) {
+            return true
+        } else if (grade === 'P' || grade === 'NP') {
+            return true
+        } else {
+            return false
+        }
+    }
+    // 获取成绩数值
+    getNumber(grade) {
+        if (!isNaN(grade)) {
+            return Number(grade)
+        } else if (grade === 'P') {
+            return 60
+        } else {
+            return 0
+        }
+    }
+    // 默认的选中状态
+    defaultSelectState(grade) {
+        if (!isNaN(grade)) {
+            return true
+        } else {
+            return false
+        }
     }
     onShareAppMessage(res) {
         return {

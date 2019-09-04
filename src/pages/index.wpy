@@ -40,9 +40,9 @@
                 </view>
             </view>
         </view>
-        <view style="height: {{showAd ? auto : 0}}">
+        <!-- <view style="height: {{showAd ? auto : 0}}">
             <ad unit-id="adunit-ef4e486fa72774b2"></ad>
-        </view>
+        </view> -->
     </view>
 </view>
 </template>
