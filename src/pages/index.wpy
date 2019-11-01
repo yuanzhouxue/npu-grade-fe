@@ -1,50 +1,45 @@
 <style lang="less">
 .quote {
-    margin: 20rpx;
-    background-color: #d7d7d7;
-    border-left: solid 10rpx #a4a4a4;
+  margin: 20rpx;
+  background-color: #d7d7d7;
+  border-left: solid 10rpx #a4a4a4;
 }
 </style>
 
 <template>
-<view class="page">
-    <view class="page_hd" wx:if="{{noticeText}}">
-        <noticeBar :text.sync="noticeText" componentId="noticeBar" :icon="icon"></noticeBar>
-    </view>
-    <view class="page_bd">
-        <view class="padding-10 font-12">学号</view>
-        <view style="background-color: #fff;">
-            <input-id :config.sync="idconfig" @onInput.user="onIdInput"></input-id>
+    <view class="page">
+        <view class="page_hd" wx:if="{{noticeText}}">
+            <noticeBar :text.sync="noticeText" componentId="noticeBar" :icon="icon"></noticeBar>
         </view>
-        <view class="padding-10 font-12">密码</view>
-        <view style="background-color: #fff;">
-            <input-password :config.sync="pwdconfig" @onInput.user="onPwdInput"></input-password>
-        </view>
-        <view class="padding-10">
-            <button class="btn-loading" type="primary" @tap="onConfirm">
-          确定
-          <view hidden="{{hideBtnLoading}}">
-            <loading type="circle" />
-          </view>
-        </button>
-        </view>
-    </view>
-    <view class="page_ft">
-        <view wx:if="{{oneContent}}" class="quote">
-            <view class="padding-10 font-14">
-                <text>
-                    {{oneContent}}
-                </text>
-                <view class="text-pull-right padding-10 font-14">
-                    {{oneAuthor}}
-                </view>
+        <view class="page_bd">
+            <view class="padding-10 font-12">学号</view>
+            <view style="background-color: #fff;">
+                <input-id :config.sync="idconfig" @onInput.user="onIdInput"></input-id>
+            </view>
+            <view class="padding-10 font-12">密码</view>
+            <view style="background-color: #fff;">
+                <input-password :config.sync="pwdconfig" @onInput.user="onPwdInput"></input-password>
+            </view>
+            <view class="padding-10">
+                <button class="btn-loading" type="primary" @tap="onConfirm">确定
+                    <view hidden="{{hideBtnLoading}}">
+                        <loading type="circle"/>
+                    </view>
+                </button>
             </view>
         </view>
-        <!-- <view style="height: {{showAd ? auto : 0}}">
+        <view class="page_ft">
+            <view wx:if="{{oneContent}}" class="quote">
+                <view class="padding-10 font-14">
+                    <text>{{oneContent}}</text>
+                    <view class="text-pull-right padding-10 font-14">{{oneAuthor}}</view>
+                </view>
+            </view>
+            <!-- <view style="height: {{showAd ? auto : 0}}">
             <ad unit-id="adunit-ef4e486fa72774b2"></ad>
-        </view> -->
+            </view>-->
+        </view>
     </view>
-</view>
 </template>
 
 <script>
@@ -64,9 +59,9 @@ const publicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0cnl7FY0dSG5lgpIq
     '2QIDAQAB'
 encrypt.setPublicKey(publicKey)
 
-const queryGradeUrl = 'https://wx.seekecho.cn/query_grade'
+// const queryGradeUrl = 'https://wx.seekecho.cn/query_grade'
 const noticeUrl = 'https://wx.seekecho.cn/notice'
-const oneAPI = 'https://wx.seekecho.cn/one/api/channel/one/0/0'
+// const oneAPI = 'https://wx.seekecho.cn/one/api/channel/one/0/0'
 let gotResult = false
 
 export default class Index extends wepy.page {
@@ -151,20 +146,23 @@ export default class Index extends wepy.page {
         // 判断当前时间与 “One一个” 一句话的时间相差是否超过一天
         // 超过一天需要重新加载
         if (current - oneDate > 24 * 60 * 60 * 1000) {
-            let res = await wepy.request(oneAPI)
-            this.oneContent = res.data.data.content_list[0].forward
-            this.oneAuthor = res.data.data.content_list[0].words_info
+            let res = await wx.cloud.callFunction({
+                name: 'getOneIsAll'
+            })
+            const result = JSON.parse(res.result)
+            this.oneContent = result.data.content_list[0].forward
+            this.oneAuthor = result.data.content_list[0].words_info
             wepy.setStorage({
                 key: 'oneDate',
-                data: res.data.data.date
+                data: result.data.date
             })
             wepy.setStorage({
                 key: 'oneContent',
-                data: res.data.data.content_list[0].forward
+                data: result.data.content_list[0].forward
             })
             wepy.setStorage({
                 key: 'oneAuthor',
-                data: res.data.data.content_list[0].words_info
+                data: result.data.content_list[0].words_info
             })
         } else {
             this.oneContent = wepy.getStorageSync('oneContent') || ''
@@ -209,47 +207,33 @@ export default class Index extends wepy.page {
                         mask: true
                     })
                 }
-                wepy.request({
-                    url: queryGradeUrl,
+                wx.cloud.callFunction({
+                    name: 'getGrade',
                     data: {
                         id: username,
-                        passwd: encrypt.encrypt(password)
-                    },
-                    method: 'POST',
-                    dataType: 'json'
-                }).then(function(res) {
-                    if (res.data.code === '0') {
+                        password: password
+                    }
+                }).then(function (res) {
+                    if (res.result.code === 0) {
+                        console.log('code===0')
                         self.hideBtnLoading = true
                         gotResult = true
-                        self.$parent.globalData.result = res.data.msg
+                        self.$parent.globalData.result = res.result
                         self.$apply()
                         if (showLoading) wepy.hideLoading()
                         resolve(0)
                     } else {
                         self.hideBtnLoading = true
                         self.$apply()
+                        if (showLoading) wepy.hideLoading()
                         wepy.showToast({
-                            title: res.data.msg,
+                            title: res.result.grades,
                             icon: 'none',
                             duration: 2000,
                             mask: true
                         })
                         self.$apply()
-                        if (showLoading) wepy.hideLoading()
-                        resolve(res.data.msg)
-                    }
-                    if (res.statusCode === 500 || res.statusCode === 502) {
-                        self.hideBtnLoading = true
-                        self.$apply()
-                        wepy.showToast({
-                            title: '服务器错误，请稍候再试',
-                            icon: 'none',
-                            duration: 2000,
-                            mask: true
-                        })
-                        self.$apply()
-                        if (showLoading) wepy.hideLoading()
-                        resolve('服务器错误')
+                        resolve(-1)
                     }
                 })
             })
@@ -267,10 +251,13 @@ export default class Index extends wepy.page {
     }
 
     onLoad() {
+        wx.cloud.init({
+            env: 'dev-npugpa'
+        })
         this.getOneISAll()
         this.getNotice()
         if (this.$parent.globalData.username.length === 10 && this.$parent.globalData.password.length > 5) {
-            this.queryGrade(this.$parent.globalData.username, this.$parent.globalData.password, false)
+            // this.queryGrade(this.$parent.globalData.username, this.$parent.globalData.password, false)
         }
         setTimeout(() => {
             this.showAd = true

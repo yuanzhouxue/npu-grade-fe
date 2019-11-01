@@ -108,11 +108,11 @@
         <view wx:if="{{!!credit}}" class="topfix">{{credit}}</view>
         <view class="page_bd">
             <view wx:if="{{!!credit}}" class="tophidden"></view>
-            <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
+            <repeat for="{{result.semesters}}" key="semesters-{{index}}" index="i" item="semesters">
                 <view class="panel panel-container">
                     <view @tap="titleTap({{i}})" slot="title" class="semester">
                         <view class="semester-name">
-                            {{semister}}
+                            {{semesters}}
                         </view>
                         <view class="semester-opt">
                             全选
@@ -192,7 +192,7 @@ export default class Grade extends wepy.page {
             })
         },
         titleTap(index) {
-            const semesterName = this.data.result.semister[index]
+            const semesterName = this.data.result.semesters[index]
             selectAllStatus[semesterName] = !selectAllStatus[semesterName]
             for (let g of this.data.result.grades[index]) {
                 const itemName = g.name + g.grade
@@ -209,10 +209,10 @@ export default class Grade extends wepy.page {
     onLoad() {
         this.result = this.$parent.globalData.result
         // console.log(this.result)
-        this.result.semister.reverse()
+        this.result.semesters.reverse()
         this.result.grades.reverse()
 
-        for (let s of this.result.semister) {
+        for (let s of this.result.semesters) {
             selectAllStatus[s] = true
         }
 
@@ -224,7 +224,7 @@ export default class Grade extends wepy.page {
                     this.newItem[itemId] = true
                     switchItems[itemId] = {
                         checked: this.defaultSelectState(gg.grade),
-                        disabled: this.selectable(gg.grade),
+                        disabled: !this.selectable(gg.grade),
                         componentId: itemId
                     }
                 } else {
