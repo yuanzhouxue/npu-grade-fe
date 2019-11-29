@@ -43,6 +43,9 @@
                 更新
             </view>
             <view class="font-14 text">
+                2019-11-29 添加了Android版本下载说明，并修复了一个小BUG
+            </view>
+            <view class="font-14 text">
                 2019-09-04 将P与NP两种成绩设置为可选状态，P=60分，NP=0分
             </view>
             <view class="font-14 text">

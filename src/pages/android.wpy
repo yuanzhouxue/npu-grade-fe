@@ -1,0 +1,58 @@
+<style lang="less">
+.text {
+  line-height: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+</style>
+
+<template>
+    <view class="kai-content">
+        <view>
+            <view>
+                <view class="font-16 font-bold text-pull-center text">为什么</view>
+                <view class="font-14 text">
+                    小程序可能会出现不能正常工作的情况，一般情况下是因为访问量大，教务系统将后台服务器的IP屏蔽掉了。遇到这种情况，可能需要等待一段时间才能正常使用。
+                </view>
+                <view class="font-16 font-bold text-pull-center text">怎么办</view>
+                <view class="font-14 text">
+                    然而这并不能阻止我们的脚步。为了彻底解决（开玩笑的）这个问题，我用拙劣的Android技术，开发了一个APP。
+                    安卓程序是直接访问教务系统，没有经过任何的后台服务器，所以理论上来讲只要教务系统不改版都是可以正常使用的。
+                    为什么是安卓程序？因为我不会iOS (..•˘_˘•..)
+                </view>
+                <view class="font-16 font-bold text-pull-center text">那么在哪里可以下载呢</view>
+                <view class="font-14 text">
+                    想尝试的小伙伴（们）点击下方按钮复制下载链接之后进入浏览器下载即可。安装包不大就2M左右。界面不太美观，能用就行。
+                </view>
+            </view>
+            <button @tap="copyLink">复制链接</button>
+        </view>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class More extends wepy.page {
+    config = {
+        navigationBarTitleText: ''
+    }
+    data = {}
+    methods = {
+        copyLink() {
+            wepy.setClipboardData({
+                data: 'https://download-1252816615.cos.ap-beijing.myqcloud.com/npu-gpa.apk',
+                success: res => { }
+            })
+        }
+    }
+    onShareAppMessage(res) {
+        return {
+            title: '学分积查询',
+            path: '/pages/index',
+            imageUrl: '../imgs/papercraft.png'
+        }
+    }
+}
+</script>

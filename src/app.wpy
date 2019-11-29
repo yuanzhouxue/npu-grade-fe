@@ -39,7 +39,8 @@ export default class extends wepy.app {
             'pages/about',
             'pages/grade',
             'pages/thanks',
-            'pages/feedback'
+            'pages/feedback',
+            'pages/android'
         ],
         window: {
             backgroundTextStyle: 'light',

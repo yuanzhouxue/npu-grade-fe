@@ -67,6 +67,7 @@
             <view slot="title" class="title"></view>
             <view>
                 <button class="share-btn cell-list" @tap="thanks">致谢与说明</button>
+                <button class="share-btn cell-list" @tap="android">Android版</button>
                 <button class="share-btn cell-list" open-type="feedback">反馈与建议</button>
                 <button class="share-btn cell-list" open-type="share">分享给朋友</button>
             </view>
@@ -90,6 +91,11 @@ export default class About extends wepy.page {
         thanks() {
             wepy.navigateTo({
                 url: './thanks'
+            })
+        },
+        android() {
+            wepy.navigateTo({
+                url: './android'
             })
         }
     }

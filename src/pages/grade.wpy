@@ -224,7 +224,7 @@ export default class Grade extends wepy.page {
                     this.newItem[itemId] = true
                     switchItems[itemId] = {
                         checked: this.defaultSelectState(gg.grade),
-                        disabled: this.selectable(gg.grade),
+                        disabled: !this.selectable(gg.grade),
                         componentId: itemId
                     }
                 } else {
