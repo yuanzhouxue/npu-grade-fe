@@ -42,7 +42,8 @@ export default class Noticebar extends wepy.component {
         animation: null,
         resetAnimation: null
       }
-      wx.createSelectorQuery()
+      setTimeout(() => {
+wx.createSelectorQuery()
         .select(`#${componentId}__content`)
         .boundingClientRect(rect => {
           if (rect.width) {
@@ -69,10 +70,9 @@ export default class Noticebar extends wepy.component {
           } else {
             console.warn('页面缺少 noticebar 元素')
           }
-        })
-        .exec()
+        }).exec()
+      }, 1)
     },
-
     scrollNoticeBar(componentId, mstime) {
       let currentComponent = this.currentComponent
       let resetAnimationData = currentComponent.resetAnimation.translateX(currentComponent.wrapWidth).step()

@@ -1,29 +1,29 @@
 <style lang="less">
-@import "./less/index.less";
+@import './less/index.less';
 .page {
-    min-height: 100vh;
-    background: #f5f5f5;
-    overflow: hidden;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
+  min-height: 100vh;
+  background: #f5f5f5;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
 }
 
 .page_hd {
-    width: 100%;
-    flex: 0 0 auto;
+  width: 100%;
+  flex: 0 0 auto;
 }
 
 .page_bd {
-    width: 100%;
-    flex: 1 0 auto;
+  width: 100%;
+  flex: 1 0 auto;
 }
 
 .page_ft {
-    flex: 0 0 auto;
-    width: 100%;
+  flex: 0 0 auto;
+  width: 100%;
 }
 </style>
 
@@ -52,23 +52,23 @@ export default class extends wepy.app {
             color: '#000000',
             selectedColor: '#1296db',
             list: [{
-                    'pagePath': 'pages/index',
-                    'text': '学分积',
-                    'iconPath': 'imgs/tabbar/ghost.png',
-                    'selectedIconPath': 'imgs/tabbar/ghost_selected.png'
-                },
-                // {
-                //     'pagePath': 'pages/more',
-                //     'text': '更多',
-                //     'iconPath': 'imgs/tabbar/more.png',
-                //     'selectedIconPath': 'imgs/tabbar/more_selected.png'
-                // },
-                {
-                    'pagePath': 'pages/about',
-                    'text': '关于',
-                    'iconPath': 'imgs/tabbar/about.png',
-                    'selectedIconPath': 'imgs/tabbar/about_selected.png'
-                }
+                'pagePath': 'pages/index',
+                'text': '学分积',
+                'iconPath': 'imgs/tabbar/ghost.png',
+                'selectedIconPath': 'imgs/tabbar/ghost_selected.png'
+            },
+            // {
+            //     'pagePath': 'pages/more',
+            //     'text': '更多',
+            //     'iconPath': 'imgs/tabbar/more.png',
+            //     'selectedIconPath': 'imgs/tabbar/more_selected.png'
+            // },
+            {
+                'pagePath': 'pages/about',
+                'text': '关于',
+                'iconPath': 'imgs/tabbar/about.png',
+                'selectedIconPath': 'imgs/tabbar/about_selected.png'
+            }
             ]
         }
     }
@@ -87,6 +87,10 @@ export default class extends wepy.app {
     onLaunch() {
         this.globalData.username = wepy.getStorageSync('username') || ''
         this.globalData.password = wepy.getStorageSync('passwd') || ''
+        wx.cloud.init({
+            // env: 'dev-npugpa'
+            env: 'prod-npugpa'
+        })
     }
 
     onShareAppMessage(res) {

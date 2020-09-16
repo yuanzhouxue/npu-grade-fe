@@ -105,21 +105,21 @@
 <template>
 <view class="kai-content">
     <view class="page">
-        <view wx:if="{{!!credit}}" class="topfix">{{credit}}</view>
+        <view wx:if="{{!!topResult}}" class="topfix">{{topResult}}</view>
         <view class="page_bd">
-            <view wx:if="{{!!credit}}" class="tophidden"></view>
-            <repeat for="{{result.semister}}" key="semister-{{index}}" index="i" item="semister">
+            <view wx:if="{{!!topResult}}" class="tophidden"></view>
+            <repeat for="{{result.semester}}" index="i" item="semester">
                 <view class="panel panel-container">
                     <view @tap="titleTap({{i}})" slot="title" class="semester">
                         <view class="semester-name">
-                            {{semister}}
+                            {{semester}}
                         </view>
                         <view class="semester-opt">
                             全选
                         </view>
                     </view>
                     <view class="info">
-                        <repeat for="{{result.grades[i]}}" key="grade-{{index}}" index="index" item="grade">
+                        <repeat for="{{result.grades[i]}}" index="index" item="grade">
                             <cell :title="grade.name">
                                 <view slot="detail" class="cell-detail">
                                     <view wx:if="{{!!newItem[grade.name+grade.grade]}}" class="reddot"></view>
@@ -128,6 +128,9 @@
                                     </view>
                                     <view class="cell-detail-text-item">
                                         {{grade.grade}}
+                                    </view>
+                                    <view class="cell-detail-text-item">
+                                        {{grade.credit}}
                                     </view>
                                     <switch class="cell-detail-switch-item" :switchItem.sync="switchItems[grade.name+grade.grade]" @onChange.user="change"></switch>
                                 </view>
@@ -164,23 +167,31 @@ export default class Grade extends wepy.page {
     data = {
         result: {},
         switchItems: {},
-        credit: 0,
+        topResult: '?',
         newItem: {}
     }
     watch = {
         switchItems(newValue, oldValue) {
-            let totalCredits = 0
-            let totalGradeTimesCredits = 0
-            for (let g of this.result.grades) {
-                for (let gg of g) {
-                    if (newValue[gg.name + gg.grade].checked) {
-                        totalCredits += this.getNumber(gg.score)
-                        totalGradeTimesCredits += this.getNumber(gg.score) * this.getNumber(gg.grade)
+            // 学分积和绩点的计算逻辑
+            let totalScore = 0.0
+            let totalGradeTimesScore = 0.0
+            let totalScore1 = 0.0
+            let totalCreditTimesScore = 0.0
+            for (let eachSemester of this.result.grades) {
+                for (let eachItem of eachSemester) {
+                    if (newValue[eachItem.name + eachItem.grade].checked) {
+                        totalScore += this.getNumber(eachItem.score)
+                        totalGradeTimesScore += this.getNumber(eachItem.score) * this.getNumber(eachItem.grade)
+                        if (!isNaN(eachItem.credit)) {
+                            totalScore1 += this.getNumber(eachItem.score)
+                            totalCreditTimesScore += this.getNumber(eachItem.score) * this.getNumber(eachItem.credit)
+                        }
                     }
                 }
             }
-            let credit = (totalGradeTimesCredits / totalCredits).toFixed(4)
-            this.credit = isNaN(credit) ? '0' : credit
+            let xueFenJi = totalScore === 0 ? 0 : (totalGradeTimesScore / totalScore).toFixed(4)
+            let pingJunJiDian = totalScore1 === 0 ? 0 : (totalCreditTimesScore / totalScore1).toFixed(4)
+            this.topResult = '平均学分积：' + xueFenJi + '    平均绩点：' + pingJunJiDian
         }
     }
     methods = {
@@ -192,7 +203,7 @@ export default class Grade extends wepy.page {
             })
         },
         titleTap(index) {
-            const semesterName = this.data.result.semister[index]
+            const semesterName = this.data.result.semester[index]
             selectAllStatus[semesterName] = !selectAllStatus[semesterName]
             for (let g of this.data.result.grades[index]) {
                 const itemName = g.name + g.grade
@@ -208,11 +219,12 @@ export default class Grade extends wepy.page {
     }
     onLoad() {
         this.result = this.$parent.globalData.result
-        // console.log(this.result)
-        this.result.semister.reverse()
+        console.log(this.result)
+        if (!this.result.semester) return
+        this.result.semester.reverse()
         this.result.grades.reverse()
 
-        for (let s of this.result.semister) {
+        for (let s of this.result.semester) {
             selectAllStatus[s] = true
         }
 

@@ -13,7 +13,7 @@
         width: 100px;
         height: 100px;
         border-radius: 100%;
-        background-image: url('https://wx.seekecho.cn/papercraft.png');
+        background-image: url('https://img.seekecho.cn/2019/papercraft.png');
         background-size: cover;
         background-repeat: no-repeat;
         background-origin: center;
